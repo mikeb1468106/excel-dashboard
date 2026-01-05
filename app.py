@@ -41,14 +41,28 @@ for i, (_, row) in enumerate(latest_df.iterrows()):
                   None if pd.isna(row["Δ Weighted Grade"]) else f"{row['Δ Weighted Grade']:+.3f}")
         st.metric("GPA", f"{row['GPA']:.3f}",
                   None if pd.isna(row["Δ GPA"]) else f"{row['Δ GPA']:+.3f}")
-``
 
+# ---- KPI grid (safe, dynamic columns) ----
+if latest_df.empty:
+    st.warning("No rows found for the latest week. Verify the 'Weekly Changes' sheet.")
+    st.stop()
 
-st.subheader("Data Table")
-st.dataframe(filtered_df, use_container_width=True)
+classes = latest_df["Class"].tolist()
+n_cols = int(max(1, min(6, len(classes))))  # cap columns for readability
 
-st.subheader("Charts")
-for col in num_cols:
-    st.bar_chart(filtered_df[col])
+cols = st.columns(n_cols)
 
+for i, (_, row) in enumerate(latest_df.iterrows()):
+    with cols[i % n_cols]:
+        st.subheader(row["Class"])
+        st.metric(
+            "Weighted",
+            f"{row['Weighted Grade']:.3f}",
+            None if pd.isna(row["Δ Weighted Grade"]) else f"{row['Δ Weighted Grade']:+.3f}",
+        )
+        st.metric(
+            "GPA",
+            f"{row['GPA']:.3f}",
+            None if pd.isna(row["Δ GPA"]) else f"{row['Δ GPA']:+.3f}",
+        )
 
