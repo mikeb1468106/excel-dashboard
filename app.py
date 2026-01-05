@@ -30,9 +30,19 @@ for col in text_columns:
 st.subheader("Key Metrics")
 num_cols = filtered_df.select_dtypes(include="number").columns
 
-cols = st.columns(len(num_cols))
-for i, col in enumerate(num_cols):
-    cols[i].metric(col, round(filtered_df[col].mean(), 2))
+
+# Make exactly 3 columns regardless
+cols = st.columns(3)
+
+for i, (_, row) in enumerate(latest_df.iterrows()):
+    with cols[i % 3]:
+        st.subheader(row["Class"])
+        st.metric("Weighted", f"{row['Weighted Grade']:.3f}",
+                  None if pd.isna(row["Δ Weighted Grade"]) else f"{row['Δ Weighted Grade']:+.3f}")
+        st.metric("GPA", f"{row['GPA']:.3f}",
+                  None if pd.isna(row["Δ GPA"]) else f"{row['Δ GPA']:+.3f}")
+``
+
 
 st.subheader("Data Table")
 st.dataframe(filtered_df, use_container_width=True)
@@ -40,4 +50,5 @@ st.dataframe(filtered_df, use_container_width=True)
 st.subheader("Charts")
 for col in num_cols:
     st.bar_chart(filtered_df[col])
+
 
