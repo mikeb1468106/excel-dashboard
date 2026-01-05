@@ -5,8 +5,10 @@ st.set_page_config(page_title="Excel Dashboard", layout="wide")
 
 @st.cache_data
 def load_data():
-    return pd.read_excel("grading_data.xlsx")
-
+    return pd.read_excel(
+        "grading_data.xlsx",
+        engine="openpyxl"
+    )
 df = load_data()
 
 st.title("Web-Based Dashboard")
@@ -38,3 +40,4 @@ st.dataframe(filtered_df, use_container_width=True)
 st.subheader("Charts")
 for col in num_cols:
     st.bar_chart(filtered_df[col])
+
