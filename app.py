@@ -136,3 +136,29 @@ with st.expander("Environment info"):
     except ImportError:
         st.caption("openpyxl NOT installed")
     st.caption(f"pandas {pd.__version__}")
+
+import matplotlib.dates as mdates
+
+# For Weighted Grade chart
+fig1, ax1 = plt.subplots(figsize=(9, 4))
+for c in weighted_pivot.columns:
+    ax1.plot(weighted_pivot.index, weighted_pivot[c], marker="o", label=c)
+ax1.set_ylabel("Weighted Grade")
+ax1.grid(True)
+ax1.legend(ncol=2)
+ax1.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=8))  # Show max 8 ticks
+fig1.autofmt_xdate()  # Rotate and space out dates
+st.pyplot(fig1)
+
+# For GPA chart
+fig2, ax2 = plt.subplots(figsize=(9, 4))
+for c in gpa_pivot.columns:
+    ax2.plot(gpa_pivot.index, gpa_pivot[c], marker="o", label=c)
+ax2.set_ylim(0, 4.2)
+ax2.set_ylabel("GPA")
+ax2.grid(True)
+ax2.legend(ncol=2)
+ax2.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=8))
+fig2.autofmt_xdate()
+st.pyplot(fig2)
+
