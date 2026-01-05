@@ -3,6 +3,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates  # NEW: for better date spacing/formatting
 
 st.set_page_config(page_title="Noah Weekly Grades — Web Dashboard", layout="wide")
 
@@ -70,7 +71,7 @@ if latest_df.empty:
 st.caption(f"Latest update: {latest_week.date()}")
 
 # ----------- KPI grid (safe dynamic columns) -----------
-kpi_cols_present = {"Δ Weighted Grade", "Δ GPA"} <= set(df.columns)
+kpi_cols_present = {"Δ Weighted Grade", "Δ GPA"} <= set(df.columns)  # FIXED: operator
 
 classes = latest_df["Class"].tolist()
 n_cols = int(max(1, min(6, len(classes))))  # cap for readability
@@ -100,24 +101,36 @@ weighted_pivot = df.pivot_table(
     index="Week", columns="Class", values="Weighted Grade", aggfunc="first"
 )
 
-fig1, ax1 = plt.subplots(figsize=(9, 4))
+fig1, ax1 = plt.subplots(figsize=(10, 4))  # slightly wider
 for c in weighted_pivot.columns:
     ax1.plot(weighted_pivot.index, weighted_pivot[c], marker="o", label=c)
 ax1.set_ylabel("Weighted Grade")
 ax1.grid(True)
 ax1.legend(ncol=2)
+
+# Improve date spacing/formatting
+ax1.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=8))            # limit ticks
+ax1.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))               # e.g., "Jan 03"
+fig1.autofmt_xdate(rotation=30)                                            # rotate for clarity
+
 st.pyplot(fig1)
 
 st.subheader("Trend — GPA")
 gpa_pivot = df.pivot_table(index="Week", columns="Class", values="GPA", aggfunc="first")
 
-fig2, ax2 = plt.subplots(figsize=(9, 4))
+fig2, ax2 = plt.subplots(figsize=(10, 4))
 for c in gpa_pivot.columns:
     ax2.plot(gpa_pivot.index, gpa_pivot[c], marker="o", label=c)
 ax2.set_ylim(0, 4.2)
 ax2.set_ylabel("GPA")
 ax2.grid(True)
 ax2.legend(ncol=2)
+
+# Improve date spacing/formatting
+ax2.xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=8))
+ax2.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+fig2.autofmt_xdate(rotation=30)
+
 st.pyplot(fig2)
 
 # ----------- Latest-week table -----------
@@ -136,5 +149,4 @@ with st.expander("Environment info"):
     except ImportError:
         st.caption("openpyxl NOT installed")
     st.caption(f"pandas {pd.__version__}")
-
 
